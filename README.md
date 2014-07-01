@@ -3,7 +3,6 @@
 A low-level implementation of the anti-entropy gossip protocol scuttlebutt.
 
 [![NPM][npm]](https://npmjs.org/package/plasmid)
-[![Dependency Status][dependencies]](https://david-dm.org/rkusa/plasmid)
 [![Build Status][travis]](http://travis-ci.org/rkusa/plasmid)
 
 ## API
@@ -17,7 +16,7 @@ var plasmid = require('plasmid')
 Create a new gossip host/participant uniquely identified by the provided `id` (must be unique within all participants). The behavior of the host can be adjusted with the following options:
 
 - **ordering** - (default: depth) (breadth|depth)
-- **syncHistory** - (default: false) whether to sync the full history of a key value pair instead of just syncing the most recent value
+- **state** - (default: LocalState) the state
 
 ```js
 var p = new plasmid.Host(1)
@@ -64,6 +63,18 @@ ps.pipe(q.exchange()).pipe(ps)
 ps.gossip()
 ```
 
+### new LocalState([opts])
+
+The behavior of the local state can be adjusted with the following options:
+
+- **history** - (default: true) whether to sync the full history of a key value pair instead of just syncing the most recent value
+
+```js
+var p = new plasmid.Host(1, {
+  state: new plasmid.State({ history: false })
+})
+```
+
 ## MIT License
 
 Copyright (c) 2014 Markus Ast
@@ -75,5 +86,4 @@ The above copyright notice and this permission notice shall be included in all c
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 [npm]: http://img.shields.io/npm/v/plasmid.svg?style=flat
-[dependencies]: http://img.shields.io/gemnasium/rkusa/plasmid.svg?style=flat
 [travis]: http://img.shields.io/travis/rkusa/plasmid.svg?style=flat

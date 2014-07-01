@@ -27,9 +27,9 @@ suite('Host', function() {
   p.set('a', 'A')
   p.set('a', 'AA')
   p.set('b', 'B')
-  var q = p.states[2] = new plasmid.State(2)
+  var q = p.state.states[2] = new plasmid.State(2)
   q.set('a', 'A')
-  var r = p.states[3] = new plasmid.State(3)
+  var r = p.state.states[3] = new plasmid.State(3)
   r.set('a', 'A')
 
   test('digest', function() {
@@ -84,12 +84,13 @@ suite('Host', function() {
 })
 
 suite('Gossip', function() {
+  var a, b, c, d, gossip
 
-  test('test', function(done) {
-    var a = new plasmid.Host('A')
-    var b = new plasmid.Host('B')
-    var c = new plasmid.Host('C')
-    var d = new plasmid.Host('D')
+  function prepare(opts) {
+    a = new plasmid.Host('A', opts)
+    b = new plasmid.Host('B', opts)
+    c = new plasmid.Host('C', opts)
+    d = new plasmid.Host('D', opts)
 
     var as = a.createStream({ end: false })
     as.pipe(b.exchange()).pipe(as)
@@ -103,24 +104,28 @@ suite('Gossip', function() {
     var ds = d.createStream({ end: false })
     ds.pipe(a.exchange()).pipe(ds)
 
-    a.set('a', 1)
-    b.set('b', 2)
-    c.set('c', 3)
-    d.set('d', 4)
-
-    function gossip() {
+    gossip = function() {
       as.gossip()
       bs.gossip()
       cs.gossip()
       ds.gossip()
     }
+  }
+
+  test('test (with local state)', function(done) {
+    prepare({})
+
+    a.set('a', 1)
+    b.set('b', 2)
+    c.set('c', 3)
+    d.set('d', 4)
 
     repeat(gossip, 6, function() {
       [a, b, c, d].forEach(function(p) {
-        expect(p.states.A.get('a')).to.equal(1)
-        expect(p.states.B.get('b')).to.equal(2)
-        expect(p.states.C.get('c')).to.equal(3)
-        expect(p.states.D.get('d')).to.equal(4)
+        expect(p.state.states.A.get('a')).to.equal(1)
+        expect(p.state.states.B.get('b')).to.equal(2)
+        expect(p.state.states.C.get('c')).to.equal(3)
+        expect(p.state.states.D.get('d')).to.equal(4)
       })
       done()
     })
