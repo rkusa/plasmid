@@ -30,9 +30,11 @@ Sets the local `key` to `value`.
 
 Gets the value for local `key`.
 
-### host.exchange()
+### host.exchange([opts])
 
-Create a transform stream used to receive digests and respond with deltas accordingly (through whatever transport channel you want).
+Create a transform stream used to receive digests and respond with deltas accordingly (through whatever transport channel you want). The behavior of the stream can be adjusted with the following options:
+
+- **end** - (default: true) whether the stream should end after completing to send its deltas
 
 **Caution:** create a single stream per connection and do not reuse one stream to connect multiple hosts together.
 

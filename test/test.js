@@ -93,16 +93,16 @@ suite('Gossip', function() {
     d = new plasmid.Host('D', opts)
 
     var as = a.createStream({ end: false })
-    as.pipe(b.exchange()).pipe(as)
+    as.pipe(b.exchange({ end: false })).pipe(as)
 
     var bs = b.createStream({ end: false })
-    bs.pipe(c.exchange()).pipe(bs)
+    bs.pipe(c.exchange({ end: false })).pipe(bs)
 
     var cs = c.createStream({ end: false })
-    cs.pipe(d.exchange()).pipe(cs)
+    cs.pipe(d.exchange({ end: false })).pipe(cs)
 
     var ds = d.createStream({ end: false })
-    ds.pipe(a.exchange()).pipe(ds)
+    ds.pipe(a.exchange({ end: false })).pipe(ds)
 
     gossip = function() {
       as.gossip()
