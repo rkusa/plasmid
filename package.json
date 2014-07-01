@@ -1,0 +1,41 @@
+{
+  "name": "plasmid",
+  "version": "0.0.0",
+  "author": "Markus Ast <npm.m@rkusa.st>",
+  "description": "scuttlebutt gossip",
+  "keywords": [
+    "scuttlebutt",
+    "gossip",
+    "epidemic",
+    "protocol"
+  ],
+  "main": "lib/",
+  "directories": {
+    "test": "test"
+  },
+  "dependencies": {
+    "chai": "^1.9.1"
+  },
+  "devDependencies": {
+    "chai": "^1.9.1",
+    "eslint": "^0.6.2",
+    "gulp": "^3.8.5",
+    "gulp-eslint": "^0.1.7",
+    "gulp-mocha": "^0.4.1"
+  },
+  "scripts": {
+    "test": "gulp"
+  },
+  "bugs": {
+    "url": "https://github.com/rkusa/plasmid/issues"
+  },
+  "homepage": "https://github.com/rkusa/plasmid",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:rkusa/plasmid.git"
+  },
+  "license": "MIT",
+  "engines": {
+    "node": ">=0.10"
+  }
+}
