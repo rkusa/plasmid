@@ -15,7 +15,7 @@ var plasmid = require('plasmid')
 
 Create a new gossip host/participant uniquely identified by the provided `id` (must be unique within all participants). The behavior of the host can be adjusted with the following options:
 
-- **ordering** - (default: depth) (breadth|depth)
+- **ordering** - (default: breadth) (breadth|depth)
 - **state** - (default: LocalState) the state
 
 ```js

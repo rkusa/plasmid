@@ -60,7 +60,7 @@ suite('Host', function() {
     )
   })
 
-  test('deltas (plasmid-breadth ordering)', function() {
+  test('deltas (plasmid-depth ordering)', function() {
     p.opts.ordering = 'depth'
     var deltas = p.getDeltas([
       { r: 1, n: 1 },
