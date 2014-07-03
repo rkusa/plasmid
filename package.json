@@ -2,7 +2,7 @@
   "name": "plasmid",
   "version": "0.0.0",
   "author": "Markus Ast <npm.m@rkusa.st>",
-  "description": "A low-level implementation of the anti-entropy gossip protocol scuttlebutt.",
+  "description": "Scuttlebutt reconciliation for anti-entropy gossip protocol implementations.",
   "keywords": [
     "scuttlebutt",
     "gossip",

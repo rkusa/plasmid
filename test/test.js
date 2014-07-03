@@ -11,13 +11,13 @@ suite('State & History', function() {
     var state = new plasmid.State(1)
     expect(state.maxVersion).to.equal(0)
 
-    state.set('a', 'A')
+    state.set('~', 'a', 'A')
     expect(state.maxVersion).to.equal(1)
-    expect(state.state.a[0]).to.eql({ r: 1, k: 'a', v: 'A', n: 1 })
+    expect(state.state['~'].a[0]).to.eql({ r: 1, k: ['~', 'a'], v: 'A', n: 1 })
 
-    state.set('b', 'B')
+    state.set('~', 'b', 'B')
     expect(state.maxVersion).to.equal(2)
-    expect(state.state.b[0]).to.eql({ r: 1, k: 'b', v: 'B', n: 2 })
+    expect(state.state['~'].b[0]).to.eql({ r: 1, k: ['~', 'b'], v: 'B', n: 2 })
   })
 
 })
@@ -28,9 +28,9 @@ suite('Host', function() {
   p.set('a', 'AA')
   p.set('b', 'B')
   var q = p.state.states[2] = new plasmid.State(2)
-  q.set('a', 'A')
+  q.set('~', 'a', 'A')
   var r = p.state.states[3] = new plasmid.State(3)
-  r.set('a', 'A')
+  r.set('~', 'a', 'A')
 
   test('digest', function() {
     var digest = p.getDigest()
@@ -50,13 +50,13 @@ suite('Host', function() {
     ])
 
     expect(deltas).to.have.lengthOf(4)
-    expect(deltas[3]).to.eql({ r: 1, k: 'b', v: 'B', n: 3 })
+    expect(deltas[3]).to.eql({ r: 1, k: ['~', 'b'], v: 'B', n: 3 })
 
     // their order may change
     expect(deltas.splice(0, 3)).to.include(
-      { r: 1, k: 'a', v: 'AA', n: 2 },
-      { r: 2, k: 'a', v: 'A', n: 1 },
-      { r: 3, k: 'a', v: 'A', n: 1 }
+      { r: 1, k: ['~', 'a'], v: 'AA', n: 2 },
+      { r: 2, k: ['~', 'a'], v: 'A', n: 1 },
+      { r: 3, k: ['~', 'a'], v: 'A', n: 1 }
     )
   })
 
@@ -71,13 +71,14 @@ suite('Host', function() {
     expect(deltas).to.have.lengthOf(4)
 
     expect(deltas.splice(0, 2)).to.include(
-      { r: 1, k: 'a', v: 'AA', n: 2 },
-      { r: 1, k: 'b', v: 'B', n: 3 }
+      { r: 1, k: ['~', 'a'], v: 'AA', n: 2 },
+      { r: 1, k: ['~', 'b'], v: 'B', n: 3 }
     )
 
+
     expect(deltas).to.include(
-      { r: 3, k: 'a', v: 'A', n: 1 },
-      { r: 2, k: 'a', v: 'A', n: 1 }
+      { r: 3, k: ['~', 'a'], v: 'A', n: 1 },
+      { r: 2, k: ['~', 'a'], v: 'A', n: 1 }
     )
   })
 
@@ -122,10 +123,10 @@ suite('Gossip', function() {
 
     repeat(gossip, 6, function() {
       [a, b, c, d].forEach(function(p) {
-        expect(p.state.states.A.get('a')).to.equal(1)
-        expect(p.state.states.B.get('b')).to.equal(2)
-        expect(p.state.states.C.get('c')).to.equal(3)
-        expect(p.state.states.D.get('d')).to.equal(4)
+        expect(p.state.states.A.get('~', 'a')).to.equal(1)
+        expect(p.state.states.B.get('~', 'b')).to.equal(2)
+        expect(p.state.states.C.get('~', 'c')).to.equal(3)
+        expect(p.state.states.D.get('~', 'd')).to.equal(4)
       })
       done()
     })

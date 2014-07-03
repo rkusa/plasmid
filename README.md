@@ -1,6 +1,6 @@
 # plasmid
 
-A low-level implementation of the anti-entropy gossip protocol [scuttlebutt](http://www.cs.cornell.edu/home/rvr/papers/flowgossip.pdf).
+[Scuttlebutt reconciliation](http://www.cs.cornell.edu/home/rvr/papers/flowgossip.pdf) for anti-entropy gossip protocol implementations.
 
 [![NPM][npm]](https://npmjs.org/package/plasmid)
 [![Build Status][travis]](http://travis-ci.org/rkusa/plasmid)
