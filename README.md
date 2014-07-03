@@ -65,7 +65,7 @@ ps.pipe(q.exchange()).pipe(ps)
 ps.gossip()
 ```
 
-### new LocalState([opts])
+### new plasmid.LocalState([opts])
 
 The behavior of the local state can be adjusted with the following options:
 
@@ -73,7 +73,7 @@ The behavior of the local state can be adjusted with the following options:
 
 ```js
 var p = new plasmid.Host(1, {
-  state: new plasmid.State({ history: false })
+  state: new plasmid.LocalState({ history: false })
 })
 ```
 
