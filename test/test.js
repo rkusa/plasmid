@@ -152,6 +152,9 @@ suite('Gossip', function() {
       [a, b, c, d].forEach(function(p) {
         p.cleanup()
 
+        // do not save history of `$` namespace
+        expect(p.state.states[p.id].state['$'][p.id]).to.have.lengthOf(1)
+
         expect(p.state.states.A.state['~'].a).to.have.lengthOf(1)
         expect(p.state.states.B.state['~'].b).to.have.lengthOf(1)
         expect(p.state.states.C.state['~'].c).to.have.lengthOf(1)
