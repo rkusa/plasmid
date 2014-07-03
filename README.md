@@ -30,6 +30,12 @@ Sets the local `key` to `value`.
 
 Gets the value for local `key`.
 
+### host.cleanup()
+
+Propagate the host's view through the cluster. Values that known within the whole cluster are removed.
+
+This method is not called automatically and has du be used when implementing a gossip protocol using `plasmid`.
+
 ### host.exchange([opts])
 
 Create a transform stream used to receive digests and respond with deltas accordingly (through whatever transport channel you want). The behavior of the stream can be adjusted with the following options:
