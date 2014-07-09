@@ -10,9 +10,6 @@
     "protocol"
   ],
   "main": "lib/",
-  "directories": {
-    "test": "test"
-  },
   "devDependencies": {
     "chai": "^1.9.1",
     "eslint": "^0.6.2",
@@ -31,8 +28,5 @@
     "type": "git",
     "url": "git@github.com:rkusa/plasmid.git"
   },
-  "license": "MIT",
-  "engines": {
-    "node": ">=0.10"
-  }
+  "license": "MIT"
 }
