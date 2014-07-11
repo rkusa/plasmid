@@ -16,7 +16,7 @@ gulp.task('test', function() {
 var eslint = require('gulp-eslint')
 gulp.task('lint', function() {
   return gulp.src(['lib/*.js', 'test/*.js', 'gulpfile.js'])
-             .pipe(eslint('eslint.json'))
+             .pipe(eslint())
              .pipe(eslint.format())
              .pipe(eslint.failOnError())
 })
