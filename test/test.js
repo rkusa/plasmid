@@ -1,170 +1,175 @@
 'use strict'
 
-var expect = require('chai').expect
-var plasmid = require('../lib/')
+const test = require('tape')
+const plasmid = require('../lib/')
 
-test('max version', function() {
-  var state = new plasmid.State(1)
-  expect(state.maxVersion).to.equal(0)
+test('max version', function(t) {
+  const state = new plasmid.State(1)
+  t.equal(state.maxVersion, 0)
 
   state.set('~', 'a', 'A')
-  expect(state.maxVersion).to.equal(1)
-  expect(state.state['~'].a[0]).to.eql({ r: 1, k: ['~', 'a'], v: 'A', n: 1 })
+  t.equal(state.maxVersion, 1)
+  t.deepEqual(state.state['~'].a[0], { r: 1, k: ['~', 'a'], v: 'A', n: 1 })
 
   state.set('~', 'b', 'B')
-  expect(state.maxVersion).to.equal(2)
-  expect(state.state['~'].b[0]).to.eql({ r: 1, k: ['~', 'b'], v: 'B', n: 2 })
+  t.equal(state.maxVersion, 2)
+  t.deepEqual(state.state['~'].b[0], { r: 1, k: ['~', 'b'], v: 'B', n: 2 })
+
+  t.end()
 })
 
-suite('Host', function() {
-  var p = new plasmid.Host(1)
+let p
+test('setup host', function(t) {
+  p = new plasmid.Host(1)
   p.set('a', 'A')
   p.set('a', 'AA')
   p.set('b', 'B')
-  var q = p.state.states[2] = new plasmid.State(2)
+  const q = p.state.states[2] = new plasmid.State(2)
   q.set('~', 'a', 'A')
-  var r = p.state.states[3] = new plasmid.State(3)
+  const r = p.state.states[3] = new plasmid.State(3)
   r.set('~', 'a', 'A')
 
-  test('digest', function() {
-    var digest = p.getDigest()
-    expect(digest).to.include(
-      { r: 1, n: 3 },
-      { r: 2, n: 1 },
-      { r: 3, n: 1 }
-    )
-  })
-
-  test('deltas (plasmid-breadth ordering)', function() {
-    p.opts.ordering = 'breadth'
-    var deltas = p.getDeltas([
-      { r: 1, n: 1 },
-      { r: 2, n: 0 },
-      { r: 3, n: 0 }
-    ])
-
-    expect(deltas).to.have.lengthOf(4)
-    expect(deltas[3]).to.eql({ r: 1, k: ['~', 'b'], v: 'B', n: 3 })
-
-    // their order may change
-    expect(deltas.splice(0, 3)).to.include(
-      { r: 1, k: ['~', 'a'], v: 'AA', n: 2 },
-      { r: 2, k: ['~', 'a'], v: 'A', n: 1 },
-      { r: 3, k: ['~', 'a'], v: 'A', n: 1 }
-    )
-  })
-
-  test('deltas (plasmid-depth ordering)', function() {
-    p.opts.ordering = 'depth'
-    var deltas = p.getDeltas([
-      { r: 1, n: 1 },
-      { r: 2, n: 0 },
-      { r: 3, n: 0 }
-    ])
-
-    expect(deltas).to.have.lengthOf(4)
-
-    expect(deltas.splice(0, 2)).to.include(
-      { r: 1, k: ['~', 'a'], v: 'AA', n: 2 },
-      { r: 1, k: ['~', 'b'], v: 'B', n: 3 }
-    )
-
-    expect(deltas).to.include(
-      { r: 3, k: ['~', 'a'], v: 'A', n: 1 },
-      { r: 2, k: ['~', 'a'], v: 'A', n: 1 }
-    )
-  })
-
+  t.end()
 })
 
-suite('Gossip', function() {
-  var a, b, c, d, gossip
+test('digest', function(t) {
+  const digest = p.getDigest()
+  digestEqual(t, digest, [
+    { r: 3, n: 1 },
+    { r: 2, n: 1 },
+    { r: 1, n: 3 },
+  ])
+  t.end()
+})
 
-  function prepare(opts) {
-    a = new plasmid.Host('A', opts)
-    b = new plasmid.Host('B', opts)
-    c = new plasmid.Host('C', opts)
-    d = new plasmid.Host('D', opts)
+test('deltas (plasmid-breadth ordering)', function(t) {
+  p.opts.ordering = 'breadth'
+  const deltas = p.getDeltas([
+    { r: 1, n: 1 },
+    { r: 2, n: 0 },
+    { r: 3, n: 0 }
+  ])
 
-    var as = a.createStream({ end: false })
-    as.pipe(b.exchange({ end: false })).pipe(as)
+  t.equal(deltas.length, 4)
+  t.deepEqual(deltas[3], { r: 1, k: ['~', 'b'], v: 'B', n: 3 })
 
-    var bs = b.createStream({ end: false })
-    bs.pipe(c.exchange({ end: false })).pipe(bs)
+  // their order may change
+  digestEqual(t, deltas.splice(0, 3), [
+    { r: 3, k: ['~', 'a'], v: 'A', n: 1 },
+    { r: 1, k: ['~', 'a'], v: 'AA', n: 2 },
+    { r: 2, k: ['~', 'a'], v: 'A', n: 1 },
+  ])
+  t.end()
+})
 
-    var cs = c.createStream({ end: false })
-    cs.pipe(d.exchange({ end: false })).pipe(cs)
+test('deltas (plasmid-depth ordering)', function(t) {
+  p.opts.ordering = 'depth'
+  const deltas = p.getDeltas([
+    { r: 1, n: 1 },
+    { r: 2, n: 0 },
+    { r: 3, n: 0 }
+  ])
 
-    var ds = d.createStream({ end: false })
-    ds.pipe(a.exchange({ end: false })).pipe(ds)
+  t.equal(deltas.length, 4)
 
-    gossip = function() {
-      as.gossip()
-      bs.gossip()
-      cs.gossip()
-      ds.gossip()
-    }
+  digestEqual(t, deltas.splice(0, 2), [
+    { r: 1, k: ['~', 'a'], v: 'AA', n: 2 },
+    { r: 1, k: ['~', 'b'], v: 'B', n: 3 }
+  ])
+
+  digestEqual(t, deltas, [
+    { r: 3, k: ['~', 'a'], v: 'A', n: 1 },
+    { r: 2, k: ['~', 'a'], v: 'A', n: 1 }
+  ])
+
+  t.end()
+})
+
+let a, b, c, d, gossip
+
+function prepare(opts) {
+  a = new plasmid.Host('A', opts)
+  b = new plasmid.Host('B', opts)
+  c = new plasmid.Host('C', opts)
+  d = new plasmid.Host('D', opts)
+
+  const as = a.createStream({ end: false })
+  as.pipe(b.exchange({ end: false })).pipe(as)
+
+  const bs = b.createStream({ end: false })
+  bs.pipe(c.exchange({ end: false })).pipe(bs)
+
+  const cs = c.createStream({ end: false })
+  cs.pipe(d.exchange({ end: false })).pipe(cs)
+
+  const ds = d.createStream({ end: false })
+  ds.pipe(a.exchange({ end: false })).pipe(ds)
+
+  gossip = function() {
+    as.gossip()
+    bs.gossip()
+    cs.gossip()
+    ds.gossip()
   }
+}
 
-  test('test (with local state)', function(done) {
-    prepare({})
+test('test (with local state)', function(t) {
+  prepare({})
 
-    a.set('a', 1)
+  a.set('a', 1)
 
-    b.set('b', 1)
-    b.set('b', 2)
+  b.set('b', 1)
+  b.set('b', 2)
 
-    c.set('c', 1)
-    c.set('c', 2)
-    c.set('c', 3)
+  c.set('c', 1)
+  c.set('c', 2)
+  c.set('c', 3)
 
-    d.set('d', 1)
-    d.set('d', 2)
-    d.set('d', 3)
-    d.set('d', 4)
+  d.set('d', 1)
+  d.set('d', 2)
+  d.set('d', 3)
+  d.set('d', 4)
 
-    repeat(gossip, 4, function() {
-      [a, b, c, d].forEach(function(p) {
-        expect(p.state.states.A.get('~', 'a')).to.equal(1)
-        expect(p.state.states.A.state['~'].a).to.have.lengthOf(1)
+  repeat(gossip, 4, function() {
+    [a, b, c, d].forEach(p => {
+      t.equal(p.state.states.A.get('~', 'a'), 1)
+      t.equal(p.state.states.A.state['~'].a.length, 1)
 
-        expect(p.state.states.B.get('~', 'b')).to.equal(2)
-        expect(p.state.states.B.state['~'].b).to.have.lengthOf(2)
+      t.equal(p.state.states.B.get('~', 'b'), 2)
+      t.equal(p.state.states.B.state['~'].b.length, 2)
 
-        expect(p.state.states.C.get('~', 'c')).to.equal(3)
-        expect(p.state.states.C.state['~'].c).to.have.lengthOf(3)
+      t.equal(p.state.states.C.get('~', 'c'), 3)
+      t.equal(p.state.states.C.state['~'].c.length, 3)
 
-        expect(p.state.states.D.get('~', 'd')).to.equal(4)
-        expect(p.state.states.D.state['~'].d).to.have.lengthOf(4)
-      })
-      done()
+      t.equal(p.state.states.D.get('~', 'd'), 4)
+      t.equal(p.state.states.D.state['~'].d.length, 4)
     })
+
+    t.end()
+  })
+})
+
+test('state history cleanup', function(t) {
+  [a, b, c, d].forEach(function(p) {
+    p.cleanup()
   })
 
-  test('state history cleanup', function(done) {
+  repeat(gossip, 4, function() {
     [a, b, c, d].forEach(function(p) {
       p.cleanup()
+
+      // do not save history of `$` namespace
+      t.equal(p.state.states[p.id].state.$[p.id].length, 1)
+
+      t.equal(p.state.states.A.state['~'].a.length, 1)
+      t.equal(p.state.states.B.state['~'].b.length, 1)
+      t.equal(p.state.states.C.state['~'].c.length, 1)
+      t.equal(p.state.states.D.state['~'].d.length, 1)
     })
 
-    repeat(gossip, 4, function() {
-      [a, b, c, d].forEach(function(p) {
-        p.cleanup()
-
-        // do not save history of `$` namespace
-        expect(p.state.states[p.id].state.$[p.id]).to.have.lengthOf(1)
-
-        expect(p.state.states.A.state['~'].a).to.have.lengthOf(1)
-        expect(p.state.states.B.state['~'].b).to.have.lengthOf(1)
-        expect(p.state.states.C.state['~'].c).to.have.lengthOf(1)
-        expect(p.state.states.D.state['~'].d).to.have.lengthOf(1)
-      })
-      done()
-    })
+    t.end()
   })
-
 })
-
-
 
 function repeat(fn, times, callback) {
   fn()
@@ -175,4 +180,10 @@ function repeat(fn, times, callback) {
       callback()
     }
   })
+}
+
+function digestEqual(t, actual, expected) {
+  actual.sort((lhs, rhs) => lhs.r - rhs.r)
+  expected.sort((lhs, rhs) => lhs.r - rhs.r)
+  t.deepEqual(actual, expected)
 }
